@@ -1,3 +1,4 @@
+import { createPostInput, updatePostInput, } from '@parash2810/common-medium';
 import { PrismaClient } from '@prisma/client/edge'
 import { withAccelerate } from "@prisma/extension-accelerate";
 import { Hono } from "hono";
@@ -39,6 +40,15 @@ blogRoutes.use("/*", async (c, next) => {
 blogRoutes.post('/',async(c)=>{
     const body= await c.req.json()
 
+    const {success}=createPostInput.safeParse(body);
+
+    if(!success) {
+        c.status(403);
+        return c.json({
+          message:"Invalid credentials"
+        })
+    }
+
     const authorId=c.get("userId")
 
     const prisma = new PrismaClient({
@@ -60,6 +70,15 @@ blogRoutes.post('/',async(c)=>{
 
 blogRoutes.put('/',async(c)=>{
   const body =await c.req.json();
+
+  const {success}=updatePostInput.safeParse(body);
+
+  if(!success) {
+    c.status(403);
+    return c.json({
+      message:"Invalid credentials"
+    })
+  }
 
   const prisma=new PrismaClient({
     datasourceUrl: c.env.DATABASE_URL,
@@ -108,7 +127,6 @@ blogRoutes.get('/bulk',async(c)=>{
         })
     }
 })
-
 
 blogRoutes.get('/:id',async(c)=>{
   const id=c.req.param("id");

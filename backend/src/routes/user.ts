@@ -2,6 +2,8 @@ import { PrismaClient } from '@prisma/client/edge'
 import { withAccelerate } from "@prisma/extension-accelerate";
 import { Hono } from "hono";
 import { sign } from "hono/jwt";
+import {signupInput,signinInput} from '@parash2810/common-medium'
+
 
 
 export const userRoutes = new Hono<{
@@ -20,6 +22,15 @@ userRoutes.post('/signup',async (c) => {
   }).$extends(withAccelerate())
   
   const body=await c.req.json();
+
+  const {success}= signupInput.safeParse(body);
+
+  if(!success) {
+    c.status(403);
+    return c.json({
+      message:"Invalid credentials"
+    })
+  }
   
   try {
     const user = await prisma.user.create({
@@ -41,12 +52,20 @@ userRoutes.post('/signup',async (c) => {
   
   })
 
-  userRoutes.post('/signin', async(c) => {
+userRoutes.post('/signin', async(c) => {
     const prisma = new PrismaClient({
       datasourceUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate())
   
     const body=await c.req.json();
+     const {success}=signinInput.safeParse(body);
+     if(!success) {
+      c.status(403);
+      return c.json({
+        message:"Invalid email or password"
+      })
+    }
+    
     try {
       
       const existUser = await prisma.user.findUnique({
