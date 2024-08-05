@@ -59,7 +59,8 @@ blogRoutes.post('/',async(c)=>{
         data:{
             title:body.title,
             content:body.content,
-            authorId:authorId
+            authorId:authorId,
+            publishedDate:Date()
         }
     })
 
@@ -111,6 +112,7 @@ blogRoutes.get('/bulk',async(c)=>{
                 content:true,
                 title:true,
                 id:true,
+                publishedDate:true,
                 author:{
                     select:{
                         name:true,
@@ -142,6 +144,7 @@ blogRoutes.get('/:id',async(c)=>{
          id:true,
          title:true,
          content:true,
+         publishedDate:true,
          author:{
              select:{
                  name:true,
